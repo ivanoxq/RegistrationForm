@@ -1,6 +1,7 @@
 // Import necessary libraries
 import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import PhoneInput from 'react-phone-number-input';
@@ -21,6 +22,22 @@ const schema = yup.object().shape({
   businessRole: yup.string().oneOf(['Owner', 'CEO', 'Manager', 'Ambassador', 'Representative', ''], 'Invalid Business Role').nullable(),
 });
 
+let theme = createTheme({
+  // Theme customization goes here as usual, including tonalOffset and/or
+  // contrastThreshold as the augmentColor() function relies on these
+});
+theme = createTheme(theme, {
+  // Custom colors created with augmentColor go here
+  palette: {
+    salmon: theme.palette.augmentColor({
+      color: {
+        main: '#FF5733',
+      },
+      name: 'salmon',
+    }),
+  },
+});
+
 function IntakeForm() {
   const { handleSubmit, control, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
@@ -34,46 +51,43 @@ function IntakeForm() {
   const businessRoles = ['Owner', 'CEO', 'Manager', 'Ambassador', 'Representative'];
 
   return (
-    <Box sx={{ maxWidth: 600, mx: 'auto', p: 4, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3 }}>
-      <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 3 }}>
-        Intake Form
-      </Typography>
+    <Box sx={{ maxWidth: 800 , mx: 'auto', p: 4, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3 }}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        {/* First Name */}
-        <Controller
-          name="firstName"
-          control={control}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              label="First Name"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              required
-              error={!!errors.firstName}
-              helperText={errors.firstName?.message}
-            />
-          )}
-        />
-
-        {/* Last Name */}
-        <Controller
-          name="lastName"
-          control={control}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              label="Last Name"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              required
-              error={!!errors.lastName}
-              helperText={errors.lastName?.message}
-            />
-          )}
-        />
+        {/* First Name and Last Name on one line */}
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Controller
+            name="firstName"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="First Name"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                required
+                error={!!errors.firstName}
+                helperText={errors.firstName?.message}
+              />
+            )}
+          />
+          <Controller
+            name="lastName"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Last Name"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                required
+                error={!!errors.lastName}
+                helperText={errors.lastName?.message}
+              />
+            )}
+          />
+        </Box>
 
         {/* Email */}
         <Controller
@@ -94,101 +108,112 @@ function IntakeForm() {
           )}
         />
 
-        {/* Phone Number with Country Code */}
-        <Controller
-          name="phoneNumber"
-          control={control}
-          render={({ field: { onChange, value, ...field } }) => (
-            <Box sx={{ mt: 2, mb: 1 }}>
-              <Typography variant="body1" component="label" sx={{ display: 'block', mb: 1 }}>Phone Number</Typography>
-              <PhoneInput
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ flex: 1 }}>
+            <Controller
+              name="phoneNumber"
+              control={control}
+              render={({ field: { onChange, value, ...field } }) => (
+                <Box sx={{ mt: 2, mb: 1 }}>
+                  <Typography variant="body1" component="label" sx={{ display: 'block', mb: 1 }}>Phone Number</Typography>
+                  <PhoneInput
+                    {...field}
+                    placeholder="Enter phone number"
+                    value={value}
+                    onChange={onChange}
+                    defaultCountry="US"
+                    international
+                    countryCallingCodeEditable={false}
+                    error={!!errors.phoneNumber}
+                    style={{ width: '100%' }}
+                  />
+                  {errors.phoneNumber && <Typography color="error" variant="caption">{errors.phoneNumber.message}</Typography>}
+                </Box>
+              )}
+            />
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <Controller
+              name="companyName"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Company Name"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  error={!!errors.companyName}
+                  helperText={errors.companyName?.message}
+                />
+              )}
+            />
+          </Box>
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          {/* Instagram Username */}
+          <Controller
+            name="instagramUsername"
+            control={control}
+            render={({ field }) => (
+              <TextField
                 {...field}
-                placeholder="Enter phone number"
-                value={value}
-                onChange={onChange}
-                defaultCountry="US" // Set a default country if you want
-                international
-                countryCallingCodeEditable={false} // Prevents users from manually editing the country code, enhancing validation
-                error={!!errors.phoneNumber}
-                // You might need custom styling for error messages with react-phone-number-input
+                label="Instagram Username"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                placeholder="@username"
+                error={!!errors.instagramUsername}
+                helperText={errors.instagramUsername?.message}
               />
-              {errors.phoneNumber && <Typography color="error" variant="caption">{errors.phoneNumber.message}</Typography>}
-            </Box>
-          )}
-        />
-
-        {/* Instagram Username */}
-        <Controller
-          name="instagramUsername"
-          control={control}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              label="Instagram Username"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              placeholder="@username"
-              error={!!errors.instagramUsername}
-              helperText={errors.instagramUsername?.message}
-            />
-          )}
-        />
-
-        {/* Company Name */}
-        <Controller
-          name="companyName"
-          control={control}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              label="Company Name"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              error={!!errors.companyName}
-              helperText={errors.companyName?.message}
-            />
-          )}
-        />
-
-        {/* Business Role */}
-        <Controller
-          name="businessRole"
-          control={control}
-          defaultValue="" // Important for select to handle "no selection" properly
-          render={({ field }) => (
-            <TextField
-              {...field}
-              select
-              label="Business Role"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              error={!!errors.businessRole}
-              helperText={errors.businessRole?.message}
-            >
-              <MenuItem value="">
-                <em>Select a role</em>
-              </MenuItem>
-              {businessRoles.map((role) => (
-                <MenuItem key={role} value={role}>
-                  {role}
+            )}
+          />
+          <Controller
+            name="businessRole"
+            control={control}
+            defaultValue=""
+            render={({ field }) => (
+              <TextField
+                {...field}
+                select
+                label="Business Role"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                error={!!errors.businessRole}
+                helperText={errors.businessRole?.message}
+              >
+                <MenuItem value="">
+                  <em>Select a role</em>
                 </MenuItem>
-              ))}
-            </TextField>
-          )}
-        />
+                {businessRoles.map((role) => (
+                  <MenuItem key={role} value={role}>
+                    {role}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
+          />
+          {/* Empty box to take up the other half */}
+        </Box>
 
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          backgroundColor="#f46236"
-          sx={{ mt: 3 }}
-        >
-          Submit
-        </Button>
+        <Typography variant="body2" sx={{ mb: 3, mt: 2, color: 'text.secondary' }}>
+          By submitting this form, you agree to receive updates about St. Augustine Cocktail Fest. Your information will be handled in accordance with our <a href="https://staugustinecocktailfest.com/en_us/legal/data-use-statement/" target="_blank" rel="noopener noreferrer">Data Use Statement</a> and will only be used for purposes related to the festival.
+        </Typography>
+
+        <ThemeProvider theme={theme}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Button
+              type="submit"
+              variant="contained"
+              color="salmon"
+              sx={{ mt: 3 }}
+            >
+              Submit
+            </Button>
+          </Box>
+        </ThemeProvider>
       </form>
     </Box>
   );
