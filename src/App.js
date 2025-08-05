@@ -4,8 +4,9 @@ import { useForm, Controller } from 'react-hook-form';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import PhoneInput from 'react-phone-number-input';
-import 'react-phone-number-input/style.css'; // Don't forget to import the styles
+//import PhoneInput from 'react-phone-number-input';
+import PhoneInput from 'react-phone-input-2'; // Using react-phone-input-2 for better styling and usability
+import 'react-phone-input-2/lib/bootstrap.css'; // Import styles for react-phone-input-2
 import { TextField, Button, MenuItem, Typography, Box } from '@mui/material'; // Using Material-UI for components
 
 const schema = yup.object().shape({
@@ -51,52 +52,93 @@ function IntakeForm() {
   const businessRoles = ['Owner', 'CEO', 'Manager', 'Ambassador', 'Representative'];
 
   return (
-    <Box sx={{ maxWidth: 800 , mx: 'auto', p: 4, bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3 }}>
+    <Box sx={{ maxWidth: 1000 , mx: 'auto', p: 4, bgcolor: 'background.paper', borderRadius: 5, boxShadow: 3 }}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        {/* First Name and Last Name on one line */}
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Controller
-            name="firstName"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="First Name"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                required
-                error={!!errors.firstName}
-                helperText={errors.firstName?.message}
+          <Box sx={{ display: 'flex', gap: 2, mb: 2}}>
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 100, fontFamily: 'Montserrat, Arial, sans-serif', mb: -2, color: 'text.primary', fontSize: '0.95rem' }}>
+                First Name
+              </Typography>
+              <Controller
+                name="firstName"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    required
+                    error={!!errors.firstName}
+                    helperText={errors.firstName?.message}
+                    sx={{
+                      '& .MuiInputBase-input': {
+                        background: '#f5f5f574',
+                      height: '1.5em',     // Change input height
+                      padding: '14px',
+                      },
+                    '& fieldset': {
+                      borderColor: '#e0e0e0', // <-- Light grey border color
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#bdbdbd', // <-- Slightly darker on hover
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#bdbdbd', // <-- Slightly darker when focused
+                    }
+                    }}
+                  />
+                )}
               />
-            )}
-          />
-          <Controller
-            name="lastName"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="Last Name"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                required
-                error={!!errors.lastName}
-                helperText={errors.lastName?.message}
+            </Box>
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 100, fontFamily: 'Montserrat, Arial, sans-serif', mb: -2, color: 'text.primary', fontSize: '0.95rem'  }}>
+                Last Name
+              </Typography>
+              <Controller
+                name="lastName"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    required
+                    error={!!errors.lastName}
+                    helperText={errors.lastName?.message}
+                    sx={{
+                      '& .MuiInputBase-input': {
+                        background: '#f5f5f574',
+                      height: '1.5em',     // Change input height
+                      padding: '14px',
+                      },
+                    '& fieldset': {
+                      borderColor: '#e0e0e0', // <-- Light grey border color
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#bdbdbd', // <-- Slightly darker on hover
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#bdbdbd', // <-- Slightly darker when focused
+                    }
+                    }}
+                  />
+                )}
               />
-            )}
-          />
-        </Box>
+            </Box>
+          </Box>
 
-        {/* Email */}
+        <Typography variant="subtitle1" sx={{ fontWeight: 100, fontFamily: 'Montserrat, Arial, sans-serif', mb: -2, color: 'text.primary', fontSize: '0.95rem'  }}>
+                Email
+        </Typography>
+          {/* Email */}
         <Controller
           name="email"
           control={control}
           render={({ field }) => (
             <TextField
               {...field}
-              label="Email"
               variant="outlined"
               fullWidth
               margin="normal"
@@ -104,9 +146,27 @@ function IntakeForm() {
               required
               error={!!errors.email}
               helperText={errors.email?.message}
+              sx={{
+                  '& .MuiInputBase-input': {
+                    background: '#f5f5f574',
+                      height: '1.5em',     // Change input height
+                      padding: '14px',
+                  },
+                    '& fieldset': {
+                      borderColor: '#e0e0e0', // <-- Light grey border color
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#bdbdbd', // <-- Slightly darker on hover
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#bdbdbd', // <-- Slightly darker when focused
+                    }
+                }}
             />
           )}
         />
+
+        
 
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Box sx={{ flex: 1 }}>
@@ -115,7 +175,9 @@ function IntakeForm() {
               control={control}
               render={({ field: { onChange, value, ...field } }) => (
                 <Box sx={{ mt: 2, mb: 1 }}>
-                  <Typography variant="body1" component="label" sx={{ display: 'block', mb: 1 }}>Phone Number</Typography>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 100, fontFamily: 'Montserrat, Arial, sans-serif', mb: .2, color: 'text.primary', fontSize: '0.95rem'  }}>
+                        Phone Number
+                </Typography>
                   <PhoneInput
                     {...field}
                     placeholder="Enter phone number"
@@ -124,51 +186,100 @@ function IntakeForm() {
                     defaultCountry="US"
                     international
                     countryCallingCodeEditable={false}
-                    error={!!errors.phoneNumber}
-                    style={{ width: '100%' }}
+                    inputStyle={{
+                      background: '#f5f5f574',
+                      borderRadius: 4,
+                      width: '100%',
+                      height: '51px', // match MUI TextField height
+                      fontSize: '1rem',
+                      borderRadius: 2
+                    }}
                   />
                   {errors.phoneNumber && <Typography color="error" variant="caption">{errors.phoneNumber.message}</Typography>}
                 </Box>
               )}
             />
           </Box>
-          <Box sx={{ flex: 1 }}>
+          <Box sx={{ flex: 1, mt: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 100, fontFamily: 'Montserrat, Arial, sans-serif', mb: -2, color: 'text.primary', fontSize: '0.95rem'  }}>
+                    Company Name
+            </Typography>
             <Controller
               name="companyName"
               control={control}
               render={({ field }) => (
                 <TextField
                   {...field}
-                  label="Company Name"
                   variant="outlined"
                   fullWidth
                   margin="normal"
                   error={!!errors.companyName}
                   helperText={errors.companyName?.message}
+                  sx={{
+                    '& .MuiInputBase-input': {
+                      background: '#f5f5f574',
+                      height: '1.5em',     // Change input height
+                      padding: '14px',
+                    },
+                    '& fieldset': {
+                      borderColor: '#e0e0e0', // <-- Light grey border color
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#bdbdbd', // <-- Slightly darker on hover
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#bdbdbd', // <-- Slightly darker when focused
+                    }
+                    
+                  }}
                 />
               )}
             />
           </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          {/* Instagram Username */}
-          <Controller
-            name="instagramUsername"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="Instagram Username"
-                variant="outlined"
-                fullWidth
-                margin="normal"
-                placeholder="@username"
-                error={!!errors.instagramUsername}
-                helperText={errors.instagramUsername?.message}
-              />
-            )}
-          />
+        <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 100, fontFamily: 'Montserrat, Arial, sans-serif', mb: -2, color: 'text.primary', fontSize: '0.95rem'  }}>
+                    Instagram Username
+            </Typography>
+            {/* Instagram Username */}
+            <Controller
+              name="instagramUsername"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  placeholder="@username"
+                  error={!!errors.instagramUsername}
+                  helperText={errors.instagramUsername?.message}
+                  sx={{
+                    '& .MuiInputBase-input': {
+                      background: '#f5f5f574',
+                      height: '1.5em',     // Change input height
+                      padding: '14px',
+                    },
+                    '& fieldset': {
+                      borderColor: '#e0e0e0', // <-- Light grey border color
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#bdbdbd', // <-- Slightly darker on hover
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#bdbdbd', // <-- Slightly darker when focused
+                    }
+                  }}
+                />
+              )}
+            />
+            </Box>
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 100, fontFamily: 'Montserrat, Arial, sans-serif', mb: -2, color: 'text.primary', fontSize: '0.95rem'  }}>
+                    Business Role
+            </Typography>
           <Controller
             name="businessRole"
             control={control}
@@ -177,12 +288,18 @@ function IntakeForm() {
               <TextField
                 {...field}
                 select
-                label="Business Role"
                 variant="outlined"
                 fullWidth
                 margin="normal"
                 error={!!errors.businessRole}
                 helperText={errors.businessRole?.message}
+                sx={{
+                  '& .MuiInputBase-input': {
+                    background: '#f5f5f574',
+                    height: '1.3em',     // Change input height
+                    padding: '14px',
+                  }
+                }}
               >
                 <MenuItem value="">
                   <em>Select a role</em>
@@ -195,7 +312,7 @@ function IntakeForm() {
               </TextField>
             )}
           />
-          {/* Empty box to take up the other half */}
+            </Box>
         </Box>
 
         <Typography variant="body2" sx={{ mb: 3, mt: 2, color: 'text.secondary' }}>
@@ -208,7 +325,15 @@ function IntakeForm() {
               type="submit"
               variant="contained"
               color="salmon"
-              sx={{ mt: 3 }}
+              sx={{
+                mt: 3,
+                px: 4, // wider button
+                py: 1, // taller button
+                fontWeight: 800, // fatter font
+                fontSize: '0.95rem', // bigger font
+                borderRadius: 2,
+                textTransform: 'none' // Allow both lowercase and uppercase
+              }}
             >
               Submit
             </Button>
