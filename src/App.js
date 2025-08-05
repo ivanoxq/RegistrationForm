@@ -1,5 +1,5 @@
 // Import necessary libraries
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -10,6 +10,8 @@ import 'react-phone-input-2/lib/bootstrap.css'; // Import styles for react-phone
 import { TextField, Button, MenuItem, Typography, Box } from '@mui/material'; // Using Material-UI for components
 import { supabase } from './supabaseClient';
 import { isValidPhoneNumber } from 'libphonenumber-js';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
+import { createClient } from '@supabase/supabase-js'
 
 
 const schema = yup.object().shape({
@@ -42,33 +44,7 @@ theme = createTheme(theme, {
   },
 });
 
-const handleInsert = async (formData) => {
 
-  
-
-  const { data, error } = await supabase
-  .from('siteregistration')
-  .insert([
-    {
-      firstname: formData.firstName,
-      lastname: formData.lastName,
-      email: formData.email,
-      phone: formData.phoneNumber,
-      instagram: formData.instagramUsername,
-      company: formData.companyName,
-      businessrole: formData.businessRole
-    }
-  ])
-  .select(); // Returns the inserted record(s)
-
-  if (error) {
-    console.error('Error inserting data:', error);
-    // Handle error, e.g., display an error message to the user
-  } else {
-    console.log('Data inserted successfully:', data);
-    // Handle success, e.g., display a success message or redirect
-  }
-};
 
 function IntakeForm() {
   const { register, handleSubmit, control, formState: { errors }, reset} = useForm({
@@ -82,6 +58,78 @@ function IntakeForm() {
       businessRole: ''
     }
   });
+
+  const { executeRecaptcha } = useGoogleReCaptcha();
+  const [token, setToken] = useState('');
+
+const supabase = createClient(
+  "https://pxhtwlfvfjyzyzshwkye.supabase.co", 
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4aHR3bGZ2Zmp5enl6c2h3a3llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzNTgwMTcsImV4cCI6MjA2OTkzNDAxN30.M4PodTjuTs_iEu5WQxyijUYK57meRrPg7toCvBY6RuQ"
+)
+
+const verifyRecaptcha = async (recaptchaToken) => {
+  try {
+    const { data, error } = await supabase.functions.invoke('recaptcha-verify', {
+      body: { recaptchaToken }
+    })
+
+    if (error) throw error
+
+    return data // { verified: true/false, score?: number, errors?: string[] }
+  } catch (error) {
+    console.error('ReCAPTCHA verification failed:', error)
+    return { verified: false }
+  }
+}
+
+const handleInsert = async (formData) => {
+
+  try {
+    if (!executeRecaptcha) {
+      console.log('reCAPTCHA not loaded yet!');
+      return;
+    }
+
+    const recaptchaToken = await executeRecaptcha('intake_form'); // e.g., 'login', 'submit_form'
+    setToken(recaptchaToken);
+
+    // Optionally verify the token with your backend here before proceeding
+    console.log('reCAPTCHA token:', recaptchaToken);
+    
+    const verificationResult = await verifyRecaptcha(recaptchaToken)
+
+    if (verificationResult.verified) {
+      const { data, error } = await supabase
+        .from('siteregistration')
+      .insert([
+        {
+          firstname: formData.firstName,
+          lastname: formData.lastName,
+          email: formData.email,
+          phone: formData.phoneNumber,
+          instagram: formData.instagramUsername,
+          company: formData.companyName,
+          businessrole: formData.businessRole
+        }
+      ])
+      .select(); // Returns the inserted record(s)
+
+      if (error) {
+        console.error('Error inserting data:', error);
+        // Handle error, e.g., display an error message to the user
+      } else {
+        console.log('Data inserted successfully:', data);
+        // Handle success, e.g., display a success message or redirect
+      }
+
+    } else {
+      console.error('ReCAPTCHA verification failed. Submission blocked.');
+      // Optionally show an error message to the user
+    }
+  } catch (error) {
+    console.error('Error during form submission:', error);
+  }
+};
 
   // Apply register to all controls
   // For Controller components, pass {...register('fieldName')} along with field props
