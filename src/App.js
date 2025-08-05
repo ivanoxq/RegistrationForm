@@ -8,6 +8,9 @@ import * as yup from 'yup';
 import PhoneInput from 'react-phone-input-2'; // Using react-phone-input-2 for better styling and usability
 import 'react-phone-input-2/lib/bootstrap.css'; // Import styles for react-phone-input-2
 import { TextField, Button, MenuItem, Typography, Box } from '@mui/material'; // Using Material-UI for components
+import { supabase } from './supabaseClient';
+import { isValidPhoneNumber } from 'libphonenumber-js';
+
 
 const schema = yup.object().shape({
   firstName: yup.string().required('First Name is required'),
@@ -16,7 +19,7 @@ const schema = yup.object().shape({
   phoneNumber: yup.string().nullable().test('is-phone-valid', 'Invalid phone number', (value) => {
       // You can add more robust phone validation here using libphonenumber-js if needed
       // For simplicity, we're just checking if a value exists when not required
-      return !value || PhoneInput.isValidPhoneNumber(value);
+      return value || isValidPhoneNumber(value);
     }),
   instagramUsername: yup.string(),
   companyName: yup.string(),
@@ -39,21 +42,67 @@ theme = createTheme(theme, {
   },
 });
 
+const handleInsert = async (formData) => {
+
+  
+
+  const { data, error } = await supabase
+  .from('siteregistration')
+  .insert([
+    {
+      firstname: formData.firstName,
+      lastname: formData.lastName,
+      email: formData.email,
+      phone: formData.phoneNumber,
+      instagram: formData.instagramUsername,
+      company: formData.companyName,
+      businessrole: formData.businessRole
+    }
+  ])
+  .select(); // Returns the inserted record(s)
+
+  if (error) {
+    console.error('Error inserting data:', error);
+    // Handle error, e.g., display an error message to the user
+  } else {
+    console.log('Data inserted successfully:', data);
+    // Handle success, e.g., display a success message or redirect
+  }
+};
+
 function IntakeForm() {
-  const { handleSubmit, control, formState: { errors } } = useForm({
-    resolver: yupResolver(schema),
+  const { register, handleSubmit, control, formState: { errors }, reset} = useForm({
+    resolver: yupResolver(schema), defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phoneNumber: '',
+      instagramUsername: '',
+      companyName: '',
+      businessRole: ''
+    }
   });
 
+  // Apply register to all controls
+  // For Controller components, pass {...register('fieldName')} along with field props
+  // For TextField components not using Controller, use {...register('fieldName')}
+
+  // Example usage in the form:
+  // <TextField {...register('firstName')} ... />
+  // <Controller name="firstName" control={control} render={({ field }) => (<TextField {...field} {...register('firstName')} ... />)} />
+
   const onSubmit = (data) => {
-    console.log(data); // Here you would send the data to your backend or handle it as needed
-    alert(JSON.stringify(data, null, 2));
+   //console.log(data); // Here you would send the data to your backend or handle it as needed
+    //alert(JSON.stringify(data, null, 2));
+    handleInsert(data); // Call the function to insert data into Supabase
+    reset() // Reset the form after submission
   };
 
   const businessRoles = ['Owner', 'CEO', 'Manager', 'Ambassador', 'Representative'];
 
   return (
     <Box sx={{ maxWidth: 1000 , mx: 'auto', p: 4, bgcolor: 'background.paper', borderRadius: 5, boxShadow: 3 }}>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} >
           <Box sx={{ display: 'flex', gap: 2, mb: 2}}>
             <Box sx={{ flex: 1 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 100, fontFamily: 'Montserrat, Arial, sans-serif', mb: -2, color: 'text.primary', fontSize: '0.95rem' }}>
@@ -64,6 +113,7 @@ function IntakeForm() {
                 control={control}
                 render={({ field }) => (
                   <TextField
+                  {...register("firstName")}
                     {...field}
                     variant="outlined"
                     fullWidth
@@ -100,6 +150,7 @@ function IntakeForm() {
                 control={control}
                 render={({ field }) => (
                   <TextField
+                    {...register("lastName")}
                     {...field}
                     variant="outlined"
                     fullWidth
@@ -138,6 +189,7 @@ function IntakeForm() {
           control={control}
           render={({ field }) => (
             <TextField
+            {...register("email")}
               {...field}
               variant="outlined"
               fullWidth
@@ -179,6 +231,7 @@ function IntakeForm() {
                         Phone Number
                 </Typography>
                   <PhoneInput
+                  {...register("phoneNumber")}
                     {...field}
                     placeholder="Enter phone number"
                     value={value}
@@ -191,8 +244,7 @@ function IntakeForm() {
                       borderRadius: 4,
                       width: '100%',
                       height: '51px', // match MUI TextField height
-                      fontSize: '1rem',
-                      borderRadius: 2
+                      fontSize: '1rem'
                     }}
                   />
                   {errors.phoneNumber && <Typography color="error" variant="caption">{errors.phoneNumber.message}</Typography>}
@@ -205,6 +257,7 @@ function IntakeForm() {
                     Company Name
             </Typography>
             <Controller
+            {...register("companyName")}
               name="companyName"
               control={control}
               render={({ field }) => (
@@ -249,6 +302,7 @@ function IntakeForm() {
               control={control}
               render={({ field }) => (
                 <TextField
+                {...register("instagramUsername")}
                   {...field}
                   variant="outlined"
                   fullWidth
@@ -281,6 +335,7 @@ function IntakeForm() {
                     Business Role
             </Typography>
           <Controller
+          {...register("businessRole")}
             name="businessRole"
             control={control}
             defaultValue=""
